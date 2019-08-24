@@ -1,1 +1,0 @@
-console.log("ict3.js loaded.")

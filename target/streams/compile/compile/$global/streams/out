@@ -1,4 +1,0 @@
-[0m[[0m[31merror[0m] [0m[0m/Users/cblackwell/Dropbox/CITE/scala/ict3/src/main/scala/my_app/MainController.scala:35:29: value value is not a member of Option[edu.holycross.shot.cite.Urn][0m
-[0m[[0m[31merror[0m] [0m[0m		MainModel.requestParamUrn.value = MainController.getRequestUrn[0m
-[0m[[0m[31merror[0m] [0m[0m		                          ^[0m
-[0m[[0m[31merror[0m] [0m[0mone error found[0m
