@@ -59,7 +59,6 @@ object MainModel {
 	var requestParamUrn:Option[Urn] = None
 
 	/* control panels &c. */
-	val configDivVis = Var(true)
 	val userMessage = Var("Main loaded.")
 	val userAlert = Var("default")
 	val userMessageVisibility = Var("app_hidden")
@@ -71,6 +70,27 @@ object MainModel {
 
 	/* Stuff for editing an existing Triple */
 	val currentlyBeingEdited = Var[Option[CiteTriple]](None)
+
+	def deleteRelation( ct: CiteTriple ):Unit = {
+		g.console.log(s"Deleting: ${ct}")
+		val allRs: Vector[CiteTriple] = allROIs.value.toVector.filterNot(_ == ct)
+		g.console.log(s"${allROIs.value.toVector.size} >> ${allRs.size}")
+		val imageRs: Vector[CiteTriple] = currentImageROIs.value.toVector.filterNot(_ == ct)
+		g.console.log(s"${currentImageROIs.value.toVector.size} >> ${imageRs.size}")
+		val setAllRs: CiteRelationSet = CiteRelationSet(allRs.toSet)
+		val setImageRs: CiteRelationSet = CiteRelationSet(imageRs.toSet)
+		ImageUtils.clearJsRoiArray(true)
+		updateAllROIs(setAllRs)
+		updateImageROIs(setImageRs)
+		MainController.retrieveImage(currentImage.value.get)
+	}
+
+	def tripleToId(ct: CiteTriple): String = {
+		val u1: String = ct.urn1.toString.replaceAll("[:.,@]","")
+		val u2: String = ct.urn2.toString.replaceAll("[:.,@]","")
+		s"${u1}_${u2}"
+	}
+
 
 	def createNewRelation: Unit = {
 		try {

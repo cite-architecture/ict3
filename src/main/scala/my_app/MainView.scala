@@ -77,6 +77,7 @@ object MainView {
 	@dom
 	def imagePicker = {
 		<div id="ict3_urnSelect" class="ict3_config_div ict3_divVisible">
+
 			{ imageSelect.bind }
 			<label for="ict3_image_urnInput">Image URN:</label>
 				<input
@@ -163,51 +164,56 @@ object MainView {
 	@dom
 	def newObjectField = {
 		<div id="ict3_newROI_data"
-			class={
+			class="">
+				<span id="ict3_SectionHeading">{
+				MainModel.activeNewROI.bind match {
+								case Some(u) => "New Relation"
+								case None => "Draw on image to add data"
+							}
+				}</span>
+				<div id="ict3_newRelationHideWrapper" class={
 				MainModel.activeNewROI.bind match {
 								case Some(u) => "app_visible"
 								case None => "app_hidden"
 							}
 				}
 			>
-			<p>
-				<span id="ict3_newRoiDataHeading">New Relation</span>
-				<span 
-					id="ict3_newImageRoiUrnSpan" 
-					class="ict3_data_urn ict3_data_urn1">{ 
-							MainModel.activeNewROI.bind match {
-								case Some(u) => MainModel.truncUrn(u)
-								case None => ""
-							}
-					 }</span>
-				<input id="ict3_newROIDataInput" type="text" size={30} value={ 
-					MainModel.defaultCtsUrn.bind.toString 
-				} 
-					onkeyup={ urnValidatingKeyUpHandler2 }
-				/>
-				<button id="ict3_newRoiEnter"
-				type="button"
-				disabled = { 
-						!(MainModel.validDataUrnInBox.bind)
-				}
-				onclick={ event: Event => {
-					MainModel.createNewRelation
-					ImageUtils.removeTempROI(true)
-					MainModel.activeNewROI.value = None	
-					MainModel.activeNewData.value = None
-					js.Dynamic.global.document.getElementById("ict3_newROIDataInput").value = MainModel.defaultCtsUrn.value.toString	
-				} }
-				>Save Relation</button>
-				<button id="ict3_newRoiCancel"
+					<span 
+						id="ict3_newImageRoiUrnSpan" 
+						class="ict3_data_urn ict3_data_urn1">{ 
+								MainModel.activeNewROI.bind match {
+									case Some(u) => MainModel.truncUrn(u)
+									case None => ""
+								}
+						 }</span>
+					<input id="ict3_newROIDataInput" type="text" size={30} value={ 
+						MainModel.defaultCtsUrn.bind.toString 
+					} 
+						onkeyup={ urnValidatingKeyUpHandler2 }
+					/>
+					<button id="ict3_newRoiEnter"
 					type="button"
-					disabled = { false }
+					disabled = { 
+							!(MainModel.validDataUrnInBox.bind)
+					}
 					onclick={ event: Event => {
-						// Do something to kill new ROI
-						MainModel.activeNewROI.value = None	
+						MainModel.createNewRelation
 						ImageUtils.removeTempROI(true)
-						} }
-				>Cancel</button>
-			</p>
+						MainModel.activeNewROI.value = None	
+						MainModel.activeNewData.value = None
+						js.Dynamic.global.document.getElementById("ict3_newROIDataInput").value = MainModel.defaultCtsUrn.value.toString	
+					} }
+					>Save Relation</button>
+					<button id="ict3_newRoiCancel"
+						type="button"
+						disabled = { false }
+						onclick={ event: Event => {
+							// Do something to kill new ROI
+							MainModel.activeNewROI.value = None	
+							ImageUtils.removeTempROI(true)
+							} }
+					>Cancel</button>
+				</div>
 		</div>
 	}
 
@@ -221,7 +227,7 @@ object MainView {
 			<div id="ict3_dataPairs">
 					<ul id="ict3_dataPairsList">
 					{ for ( ct <- MainModel.currentImageROIs) yield {
-						<li id= { s"li_${tripleToId(ct)}" }
+						<li id= { s"li_${MainModel.tripleToId(ct)}" }
 								class={
 									val groupIndex: Int = MainModel.currentImageROIs.value.indexOf(ct)
 									val groupId: Int = (groupIndex % 25) 
@@ -239,7 +245,7 @@ object MainView {
 								} 
 
 								}
-								id={ s"roi_record_${tripleToId(ct)}" }
+								id={ s"roi_record_${MainModel.tripleToId(ct)}" }
 								class="image_roi_link" 
 
 								> {  
@@ -248,20 +254,16 @@ object MainView {
 								<span class="ict3_data_urn ict3_data_urn2">{ s"${MainModel.truncUrn(ct.urn2)}" }</span>
 
 								} </a>
-								<button class="ict3_editDeleteButton" id= { s"ict3_delete_${tripleToId(ct)}" } >Delete</button>
-								<button class="ict3_editDeleteButton" id= { s"ict3_edit_${tripleToId(ct)}" } >Edit</button>
+								<button
+								onclick={ event: Event => MainModel.deleteRelation( ct )}
+								class="ict3_editDeleteButton" id= { s"ict3_delete_${MainModel.tripleToId(ct)}" } >Delete</button>
+								<button class="ict3_editDeleteButton" id= { s"ict3_edit_${MainModel.tripleToId(ct)}" } >Edit</button>
 							</li>
 						} 
 					}	
 					</ul>
 			</div>			
 		</div>
-	}
-
-	def tripleToId(ct: CiteTriple): String = {
-		val u1: String = ct.urn1.toString.replaceAll("[:.,@]","")
-		val u2: String = ct.urn2.toString.replaceAll("[:.,@]","")
-		s"${u1}_${u2}"
 	}
 
 	@dom
@@ -278,42 +280,57 @@ object MainView {
 
 		@dom
 		def configDiv = {
-			<div id="ict_config" class={ 
-					MainModel.configDivVis.bind match {
-						case true => "ict3_config_div ict3_divVisible"
-						case false => "ict3_config_div ict3_divHidden"
-					}
-				}  >
+			<div id="ict_config" class="ict3_config_div">
+				<a id="configShowHide" class="showHideSection"
+					onclick={ event: Event => {
+						MainView.configDivShown.value = !(MainView.configDivShown.value)
+					} }
+					>{
+					if (MainView.configDivShown.bind) "hide" else "show"
+				}</a>
+				<span id="ict3_SectionHeading">Configuration</span>
+				<div id="configHideWrapper" class={
+					if (MainView.configDivShown.bind) "app_visible" else "app_hidden"
+					}>
+					<span class="groupingSpan">
+						<label for="textUrnField">Text URN Base</label>
+						<input id="textUrnField" type="text" size={60} value={ MainModel.defaultCtsUrn.bind.toString } />
+					</span>
 
-				<span class="groupingSpan">
-					<label for="textUrnField">Text URN Base</label>
-					<input id="textUrnField" type="text" size={60} value={ MainModel.defaultCtsUrn.bind.toString } />
-				</span>
-
-				{ imageLocalRemoteSwitch.bind }
+					{ imageLocalRemoteSwitch.bind }
+				</div>
 
 			</div>
 		}
 
+		val exportDivShown = Var(false)
+		val configDivShown = Var(false)
+
 		@dom 
 		def exportDiv = {
-			<div id="ict_export" class={ 
-					MainModel.configDivVis.bind match {
-						case true => "ict3_config_div ict3_divVisible"
-						case false => "ict3_config_div ict3_divHidden"
-					}
-				}  >
+			<div id="ict_export" class="ict3_config_div">
+				<a id="exportShowHide" class="showHideSection"
+					onclick={ event: Event => {
+						MainView.exportDivShown.value = !(MainView.exportDivShown.value)
+					} }
+				>{
+					if (MainView.exportDivShown.bind) "hide" else "show"
+				}</a>
+				<span id="ict3_SectionHeading">Export Settings</span>
+				<div id="exportHideWrapper" class={
+					if (MainView.exportDivShown.bind) "app_visible" else "app_hidden"
+					}>
+					<span class="groupingSpan">
+						<label for="fileNameField">Text URN Base</label>
+						<input id="fileNameField" type="text" size={30} value={ MainModel.defaultExportFilename.bind } />
+					</span>
+					<span class="groupingSpan">
+						<label for="userNameField">Text URN Base</label>
+						<input id="userNameField" type="text" size={30} value={ MainModel.defaultExportUsername.bind } />
+					</span>
 
-				<span class="groupingSpan">
-					<label for="fileNameField">Text URN Base</label>
-					<input id="fileNameField" type="text" size={30} value={ MainModel.defaultExportFilename.bind } />
-				</span>
-				<span class="groupingSpan">
-					<label for="userNameField">Text URN Base</label>
-					<input id="userNameField" type="text" size={30} value={ MainModel.defaultExportUsername.bind } />
-				</span>
-
-				{ saveCancelButtons.bind }
+					{ saveCancelButtons.bind }
+				</div>
 
 			</div>
 		}

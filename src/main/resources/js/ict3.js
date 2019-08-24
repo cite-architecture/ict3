@@ -49,6 +49,7 @@ function addToJsRoiArray(ius, irs, cns, roiId){
 	roiArray.push(tempMap);
 }
 
+
 /**
  * Converts a rectangle object into a ROI we can use in a URN
  * @param  {Rectangle} rect a rectangle object.

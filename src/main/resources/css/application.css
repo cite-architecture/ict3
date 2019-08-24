@@ -21,19 +21,38 @@ div#ict3_data {
 	font-size: 75%;
 }
 
+div#ict_config, div#ict_export {
+	max-width: 45%;
+	width: 35%;
+	float: left;
+}
+
+div#ict3_urnSelect {
+	clear: both;
+}
+
+a.showHideSection {
+	max-width: 6em;
+	float:right;
+	font-size: 75%;
+}
+
 div#ict3_newROI_data {
 	margin: 0px 0px 10px 10px;
 	padding: 1px 3px 1px 13px;
 	border-radius: 10px;
 	background-color: rgba(212, 212, 255, 0.3);
 	border: 1px solid rgba(212, 212, 255, 1);
+	min-width: 294px;
 }
 
-span#ict3_newRoiDataHeading{
+span#ict3_SectionHeading{
 	display: block;
 	font-weight: bold;
 	color: black;
+	max-width: 20em;
 }
+
 
 span#ict3_newImageRoiUrnSpan {
 	font-weight: bold;
@@ -51,6 +70,7 @@ span.ict3_data_urn2 {
 
 ul#ict3_dataPairsList {
 	list-style-type: none;
+	list-style-position: outside;
 }
 
 li.image_roiGroup {
