@@ -1,18 +1,17 @@
 
 .ict3_config_div {
-	border: 1px dashed silver;
 	margin: 0.5em;
-	padding: 0.5em;
+	padding: 0 10px 0 10px;
 	border-radius: 10px;
 }
 
 .entry_valid {
 }
 
-div#ict3_zoomHelp p {
-	margin-left: 4em;
+div#ict3_zoomHelp {
+	margin-left: 0em;
 	font-size: 60%;
-	color: black;
+	color: #777;
 }
 
 div#ict3_data {
@@ -25,7 +24,28 @@ div#ict_config, div#ict_export {
 	max-width: 45%;
 	width: 35%;
 	float: left;
+	background-color: rgba(212, 212, 255, 0.3);
+	border: 1px solid rgba(212, 212, 255, 1);
+	font-size: 75%;
 }
+
+div#main_message {
+	font-size: 75%;
+	font-weight: bold;
+	line-height: 1.1em;
+}
+
+div#main_message.alert {
+	color: red;
+}
+div#main_message.default {
+	color: blue;
+}
+div#main_message.wait {
+	color: orange;
+}
+
+
 
 div#ict3_urnSelect {
 	clear: both;
@@ -183,8 +203,7 @@ div.app_sidebarDiv h2 {
 		font-size: 65%;
 		float: right;
 		padding: 2px;
-		border: 1px dashed silver;
-		background-color: white;
+
 }
 
 #app_filePicker {

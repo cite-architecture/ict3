@@ -108,6 +108,7 @@ object ICT_NewROI {
   @JSExport
   def userDrewNewROI(urnString: String): Unit = {
     try {
+    	g.console.log(s"Updating newROI with ${urnString}}")
     	val u: Cite2Urn = Cite2Urn(urnString)
 	    MainModel.activeNewROI.value = Some(u)
     } catch {

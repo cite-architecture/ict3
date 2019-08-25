@@ -33,6 +33,9 @@ object MainController {
 	@JSExport
 	def main(libUrl: String): Unit = {
 		MainModel.requestParamUrn = MainController.getRequestUrn
+		if (libUrl.size > 3){
+			loadRemoteLibrary(libUrl)
+		}
 	}
 
 	@JSExportTopLevel("validateCtsUrn")
@@ -125,12 +128,21 @@ object MainController {
 			val rso: Option[CiteRelationSet] = library.relationSet
 			rso match {
 				case Some(rs) => {
-					MainController.updateUserMessage("Loading new alignment relations.",0)
+					MainController.updateUserMessage("Loading new alignment relations.",1)
 					val imageRelations = rs.verb(MainModel.verbUrn)
 					MainModel.updateAllROIs(imageRelations)
 				}
 				case None => {
-					MainController.updateUserMessage("This CEX data contained no image-illustration relations.",0)
+					MainController.updateUserMessage("This CEX data contained no image-illustration relations.",2)
+				}
+			}
+			MainModel.requestParamUrn match {
+				case Some(u) => {
+					val us = u.toString
+					changeImage(us)	
+				}
+				case None => {
+					// do nothing	
 				}
 			}
 		}
@@ -147,18 +159,25 @@ object MainController {
 			val contents = reader.result.asInstanceOf[String]
 			//MainModel.requestParameterUrn.value = MainController.getRequestUrn
 			MainController.updateRepository(contents)
-
-			/*
-			MainModel.requestParameterUrn.value match {
-				case Some(rqv) => {
-					for (u <- rqv) {
-						O2Model.displayPassage(u)
-					}	
-				}
-				case None =>
-			}
-			*/
 		}
+	}
+
+	/*
+		Loads library from local CEX file; updates repository
+	*/
+	def loadRemoteLibrary(url: String):Unit = {
+		val xhr = new XMLHttpRequest()
+		xhr.open("GET", url )
+		xhr.onload = { (e: Event) =>
+			if (xhr.status == 200) {
+				val contents:String = xhr.responseText
+				MainController.updateUserMessage("Loading remote library.",1)
+				MainController.updateRepository(contents)
+			} else {
+				MainController.updateUserMessage(s"Request for remote library failed with code ${xhr.status}",2)
+			}
+		}
+		xhr.send()
 	}
 
 	/*
@@ -174,7 +193,7 @@ object MainController {
 			case 2 => MainModel.userAlert.value = "warn"
 		}
 		js.timers.clearTimeout(MainModel.msgTimer)
-		MainModel.msgTimer = js.timers.setTimeout(10000){ MainModel.userMessageVisibility.value = "app_hidden" }
+		MainModel.msgTimer = js.timers.setTimeout(4000){ MainModel.userMessageVisibility.value = "app_hidden" }
 	}
 
 	/* Get Request Parameter */
@@ -215,6 +234,7 @@ object MainController {
 				None
 			}
 		}
+		g.console.log(s"found request param: ${requestUrn}")
 		requestUrn
 	}
 

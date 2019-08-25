@@ -221,6 +221,7 @@ function addRoiOverlay(roiObj) {
  * @param  {Rectangle} rect rectangular object (the selection)
  */
 function createROI(rect){
+	removeTempROI(true);
 	var newRoi = rectToRoi(rect);
 	var newUrnStripped = imgUrn.split("@")[0]
 	var newUrn = newUrnStripped + "@" + newRoi;

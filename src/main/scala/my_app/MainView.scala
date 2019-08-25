@@ -52,11 +52,9 @@ object MainView {
 	@dom
 	def mainDiv = {
 	<div id="main-wrapper" class="">
+		{ filePicker.bind }
 		<header>
-			<header>
 				Image Citation Tool 3 <span id="app_header_versionInfo">v.0.1.0</span>
-			</header>				
-			{ filePicker.bind }
 		</header>
 
 		<article id="main_Container">
@@ -156,7 +154,7 @@ object MainView {
 	@dom
 	def imageContainer = {
 		<div id="ict3_zoomHelp">
-			<p>2-fingers to zoom. 3 fingers to move. Zooming only in “draw” mode (type ‘c’ or click <strong>off</strong> the <em>draw</em> button to move/pan).</p>
+			2-fingers to zoom. 3 fingers to move. Zooming only in “draw” mode (type ‘c’ or click <strong>off</strong> the <em>draw</em> button to move/pan).
 		</div>
 		<div id="image_imageContainer"></div>
 	}
@@ -257,7 +255,6 @@ object MainView {
 								<button
 								onclick={ event: Event => MainModel.deleteRelation( ct )}
 								class="ict3_editDeleteButton" id= { s"ict3_delete_${MainModel.tripleToId(ct)}" } >Delete</button>
-								<button class="ict3_editDeleteButton" id= { s"ict3_edit_${MainModel.tripleToId(ct)}" } >Edit</button>
 							</li>
 						} 
 					}	
@@ -392,7 +389,7 @@ object MainView {
 	@dom
 	def mainMessageDiv = {
 			<div id="main_message" class={ s"app_message ${MainModel.userMessageVisibility.bind} ${MainModel.userAlert.bind}" } >
-				<p> { MainModel.userMessage.bind }  </p>
+				{ MainModel.userMessage.bind }
 			</div>
 	}
 
