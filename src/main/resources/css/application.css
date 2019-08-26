@@ -324,12 +324,17 @@ a.image_mappedROI:active {
 
 a.image_roi_selected {
 	outline: 3px solid rgb(230,230,0);
-	border: 1px solid black;
+	border: 5px solid yellow;
 	background-color: rgba(230,230,0,0);
 }
 
 a.image_roi_hovered {
 	background-color: rgba(230,230,0,0.2);
+}
+
+li.image_roi_selected {
+	background-color: rbga(255,255,0,0.4);
+	border: 5px solid yellow;
 }
 
 p.image_roi_selected {

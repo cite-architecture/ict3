@@ -238,8 +238,27 @@ object MainController {
 		requestUrn
 	}
 
-
 	dom.render(document.body, MainView.mainDiv)
+	// Grab cookies
+	val editorCookie: Option[String] = SaveDialog.readCookieValue("editorName")		
+	editorCookie match {
+		case Some(c) => MainModel.defaultExportUsername.value = c
+		case None => // do nothing
+	}
+	val filenameCookie: Option[String] = SaveDialog.readCookieValue("defaultCexFn")		
+	filenameCookie match {
+		case Some(c) => MainModel.defaultExportFilename.value = c
+		case None => // do nothing
+	}
+	val urnCookie: Option[String] = SaveDialog.readCookieValue("defaultAlignmentUrn")		
+	try {
+		urnCookie match {
+			case Some(c) => MainModel.defaultDataUrn.value = c
+			case None => // do nothing
+		}
+	} catch {
+		case e: Exception => MainController.updateUserMessage(s"Could not make CTS URN out of value from cookie: ${e}", 2)
+	}
 
 
 }

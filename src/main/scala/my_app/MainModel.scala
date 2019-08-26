@@ -30,11 +30,12 @@ object MainModel {
 
 	val defaultExportFilename = Var("ict3_export.cex")
 	val defaultExportUsername = Var("ICT3_User")
+	val saveAs2Column = Var(false)
 
 	/* Generating ROI alignments */
 
-	// The basis CTS urn for alingments
-	val defaultCtsUrn = Var[CtsUrn](CtsUrn("urn:cts:greekLit:tlg0012.tlg001:"))	
+	// The basis of a urn for alingments
+	val defaultDataUrn = Var("urn:cts:greekLit:tlg0012.tlg001:")
 	// Should always be this
 	val verbUrn = Cite2Urn("urn:cite2:cite:verbs.v1:illustrates")
 	// ROIs for curently displayed image
@@ -72,11 +73,8 @@ object MainModel {
 	val currentlyBeingEdited = Var[Option[CiteTriple]](None)
 
 	def deleteRelation( ct: CiteTriple ):Unit = {
-		g.console.log(s"Deleting: ${ct}")
 		val allRs: Vector[CiteTriple] = allROIs.value.toVector.filterNot(_ == ct)
-		g.console.log(s"${allROIs.value.toVector.size} >> ${allRs.size}")
 		val imageRs: Vector[CiteTriple] = currentImageROIs.value.toVector.filterNot(_ == ct)
-		g.console.log(s"${currentImageROIs.value.toVector.size} >> ${imageRs.size}")
 		val setAllRs: CiteRelationSet = CiteRelationSet(allRs.toSet)
 		val setImageRs: CiteRelationSet = CiteRelationSet(imageRs.toSet)
 		ImageUtils.clearJsRoiArray(true)
@@ -107,7 +105,9 @@ object MainModel {
 			ImageUtils.passNewRectToJS(ct)
 		} catch {
 			case e: Exception => {
-				g.console.log(s"Failed to create new relation: ${e}")
+				var m = s"Failed to create new relation (MainModel.createNewRelation): ${e}"
+				MainController.updateUserMessage(m, 2)
+				g.console.log(m)
 			}
 		}
 	}
@@ -134,7 +134,10 @@ object MainModel {
 	def truncUrn(u:Cite2Urn):String = {
 		val beginning:String = s"urn:cite2:"
 		val ending:String = {
-			u.dropExtensions.objectComponent + "…" + u.objectExtension.takeRight(4)
+			u.objectExtensionOption match {
+				case Some(oe) => u.dropExtensions.objectComponent + "…" + u.objectExtension.takeRight(4)
+				case None => u.objectComponent
+			}
 		}
 		s"${beginning}…${ending}"
 	}
@@ -180,7 +183,12 @@ object MainModel {
 		for ( r <- currentImageROIs.value ) {
 			try {
 				val wholeImageURN: Cite2Urn = r.urn1.asInstanceOf[Cite2Urn]
-				val justUrnString: String = wholeImageURN.dropExtensions.toString
+				val justUrnString: String = {
+					wholeImageURN.objectExtensionOption match {
+						case Some(e) => wholeImageURN.dropExtensions.toString
+						case None => wholeImageURN.toString
+					}
+				}
 				val justROI: String = {
 					wholeImageURN.objectExtensionOption match{
 						case Some(e) => e

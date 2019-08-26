@@ -39,6 +39,17 @@ object MainView {
 		}
 	}
 
+	val updateDefaultDataValue = { event: KeyboardEvent =>
+		(event.currentTarget, event.keyCode) match {
+			case (input: html.Input, KeyCode.Enter) => {
+				event.preventDefault()
+					MainModel.defaultDataUrn.value = input.value.toString
+			}
+			case(input: html.Input, _) =>  MainModel.defaultDataUrn.value = input.value.toString
+			case _ =>
+		}
+	}
+
 	val urnValidatingKeyUpHandler2 = { event: KeyboardEvent =>
 		(event.currentTarget, event.keyCode) match {
 			case (input: html.Input, KeyCode.Enter) => {
@@ -49,6 +60,7 @@ object MainView {
 		}
 	}
 
+	
 	@dom
 	def mainDiv = {
 	<div id="main-wrapper" class="">
@@ -185,7 +197,7 @@ object MainView {
 								}
 						 }</span>
 					<input id="ict3_newROIDataInput" type="text" size={30} value={ 
-						MainModel.defaultCtsUrn.bind.toString 
+						MainModel.defaultDataUrn.bind.toString
 					} 
 						onkeyup={ urnValidatingKeyUpHandler2 }
 					/>
@@ -198,8 +210,10 @@ object MainView {
 						MainModel.createNewRelation
 						ImageUtils.removeTempROI(true)
 						MainModel.activeNewROI.value = None	
+						// Save data URN to cookie
+						SaveDialog.updateCookie("defaultAlignmentUrn", MainModel.defaultDataUrn.value.toString )
 						MainModel.activeNewData.value = None
-						js.Dynamic.global.document.getElementById("ict3_newROIDataInput").value = MainModel.defaultCtsUrn.value.toString	
+						js.Dynamic.global.document.getElementById("ict3_newROIDataInput").value = MainModel.defaultDataUrn.value.toString	
 					} }
 					>Save Relation</button>
 					<button id="ict3_newRoiCancel"
@@ -226,6 +240,18 @@ object MainView {
 					<ul id="ict3_dataPairsList">
 					{ for ( ct <- MainModel.currentImageROIs) yield {
 						<li id= { s"li_${MainModel.tripleToId(ct)}" }
+								onmouseenter={ event: Event => {
+										val idx = MainModel.currentImageROIs.value.toVector.indexOf(ct)
+										val idxString = s"image_mappedROI_${idx}"
+										ImageUtils.ICT_HighlightData.highlightData(idxString)
+										ImageUtils.ICT_HighlightROI.highlightROI(idxString)
+									}
+								}	
+								onmouseleave={ event: Event => {
+										val idx = MainModel.currentImageROIs.value.toVector.indexOf(ct)
+										val idxString = s"image_mappedROI_${idx}"
+									}
+								}	
 								class={
 									val groupIndex: Int = MainModel.currentImageROIs.value.indexOf(ct)
 									val groupId: Int = (groupIndex % 25) 
@@ -290,8 +316,10 @@ object MainView {
 					if (MainView.configDivShown.bind) "app_visible" else "app_hidden"
 					}>
 					<span class="groupingSpan">
-						<label for="textUrnField">Text URN Base</label>
-						<input id="textUrnField" type="text" size={60} value={ MainModel.defaultCtsUrn.bind.toString } />
+						<label for="textUrnField">URN Base for Relations</label>
+						<input
+						 onkeyup={ updateDefaultDataValue }
+						 id="textUrnField" type="text" size={60} value={ MainModel.defaultDataUrn.bind } />
 					</span>
 
 					{ imageLocalRemoteSwitch.bind }
@@ -318,15 +346,36 @@ object MainView {
 					if (MainView.exportDivShown.bind) "app_visible" else "app_hidden"
 					}>
 					<span class="groupingSpan">
-						<label for="fileNameField">Text URN Base</label>
+						<label for="fileNameField">Filename for CEX</label>
 						<input id="fileNameField" type="text" size={30} value={ MainModel.defaultExportFilename.bind } />
 					</span>
 					<span class="groupingSpan">
-						<label for="userNameField">Text URN Base</label>
+						<label for="userNameField">Editor Name</label>
 						<input id="userNameField" type="text" size={30} value={ MainModel.defaultExportUsername.bind } />
 					</span>
 
 					{ saveCancelButtons.bind }
+
+					<span class="">
+						<label for="saveAs2columnCheckbox">Save as 2-column file</label>
+						<input 
+							onchange={ event: Event => {
+								val thisTarget = event.target.asInstanceOf[org.scalajs.dom.raw.HTMLInputElement]
+								val tempFileName:String = MainModel.defaultExportFilename.value
+								MainModel.saveAs2Column.value = thisTarget.checked 
+								MainModel.saveAs2Column.value match {
+									case true => { 
+										MainModel.defaultExportFilename.value = tempFileName.replaceAll(".cex",".tsv")
+										}
+									case false => {
+										MainModel.defaultExportFilename.value = tempFileName.replaceAll(".tsv",".cex")
+									}
+								}
+
+							}}
+							id="saveAs2columnCheckbox" type="checkbox"  checked={ MainModel.saveAs2Column.bind } />
+					</span>
+
 				</div>
 
 			</div>
@@ -338,6 +387,10 @@ object MainView {
 				<button id="downloadOkay"
 					type="button"
 					disabled = { false }
+					onclick={ event: Event => {
+						SaveDialog.assembleAndSaveCex
+					} }
+					
 				>Download</button>
 				<button id="downloadCancel"
 					type="button"

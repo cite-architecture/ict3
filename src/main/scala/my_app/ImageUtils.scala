@@ -108,7 +108,6 @@ object ICT_NewROI {
   @JSExport
   def userDrewNewROI(urnString: String): Unit = {
     try {
-    	g.console.log(s"Updating newROI with ${urnString}}")
     	val u: Cite2Urn = Cite2Urn(urnString)
 	    MainModel.activeNewROI.value = Some(u)
     } catch {
@@ -116,6 +115,61 @@ object ICT_NewROI {
     }
   }
 }
+
+@JSExportTopLevel("ICT_HighlightData")
+object ICT_HighlightData {
+  @JSExport
+  def highlightData(idIndex: String): Unit = {
+    try {
+    	// image_mappedROI_3 (in graphic)
+   	// image_roiGroup_1 (in data)
+			val thisClass = idIndex.replaceAll("image_mappedROI_", "image_roiGroup_")
+    	for ( cir <- MainModel.currentImageROIs.value ){
+    		val thisID: String = 	s"li_${MainModel.tripleToId(cir)}"
+    		val el = js.Dynamic.global.document.getElementById(thisID).asInstanceOf[org.scalajs.dom.raw.HTMLLIElement]
+    		if (el.classList.contains("image_roi_selected")) {
+    			el.classList.remove("image_roi_selected")
+    		}
+    		if (el.classList.contains(thisClass)) {
+    			el.classList.add("image_roi_selected")
+    		}
+    	}
+    } catch {
+    	case e: Exception => {
+    		MainController.updateUserMessage(s"Something went wrong highlighting data.",2)
+    		g.console.log(s"${e}")
+    	}
+
+    }
+  }
+}
+
+@JSExportTopLevel("ICT_HighlightROI")
+object ICT_HighlightROI {
+  @JSExport
+  def highlightROI(idIndex: String): Unit = {
+    try {
+    	for ( cir <- MainModel.currentImageROIs.value ){
+    		val idx = MainModel.currentImageROIs.value.indexOf(cir)
+    		val tempId = s"image_mappedROI_${idx}"
+    		val el = js.Dynamic.global.document.getElementById(tempId).asInstanceOf[org.scalajs.dom.raw.HTMLAnchorElement]
+    		if (el.classList.contains("image_roi_selected")) {
+    			el.classList.remove("image_roi_selected")
+    		}
+    	}
+  		val el = js.Dynamic.global.document.getElementById(idIndex).asInstanceOf[org.scalajs.dom.raw.HTMLAnchorElement]
+  		el.classList.add("image_roi_selected")
+
+    } catch {
+    	case e: Exception => {
+    		MainController.updateUserMessage(s"Something went wrong highlighting data.",2)
+    		g.console.log(s"${e}")
+    	}
+
+    }
+  }
+}
+
 
 
 	/* Methods for connecting out to Javascript */

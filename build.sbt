@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin, BuildInfoPlugin)
 
 name := "ict3"
 
-version := "0.1.0"
+version := "1.0.0"
 
 scalaVersion := "2.12.8"
 
@@ -22,7 +22,7 @@ libraryDependencies ++= Seq(
   "edu.holycross.shot" %%% "citeobj" % "7.3.4",
   "edu.holycross.shot" %%% "citerelations" % "2.5.2",
   "edu.holycross.shot" %%% "cex" % "6.3.3",
-  "edu.furman.classics" %%% "citewriter" % "1.0.1",
+  "edu.furman.classics" %%% "citewriter" % "1.1.0",
   "com.thoughtworks.binding" %%% "dom" % "latest.version"
 )
 

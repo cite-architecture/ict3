@@ -1,15 +1,23 @@
 console.log("ict3.js loaded.")
 
+// Save Stuff
+
+function saveCex(filename, cexString) {
+	var blob = new Blob([cexString], {type: "text/plain;charset=utf-8"});
+	saveAs(blob, filename);
+}
+
+// OpenSeaDragon Stuff
+
+
 var roiArray = [];
 var viewer = null;
 var initialLoadDone = false;
 var imgUrn = "";
 
 function clearJsRoiArray(r) {
-	console.log("got here…");
 	for (let i = 0; i < roiArray.length; i++) {
 		var tid = "image_mappedROI_" + i;
-		console.log("trying to delete " + tid);
 		viewer.removeOverlay(tid);
 	}
 	roiArray = [];
@@ -33,6 +41,32 @@ function removeTempROI(r) {
 	return true;
 }
 
+
+
+// def apply(imageUrnString: String, imageRoiString: String, classNameString: String, roiObjectId: String): js.Dynamic = js.native
+
+function clearSelectedROIs(){
+	console.log("got here")
+	for (let n = 0; n <= (roiArray.length - 1); n++){
+			console.log(n);
+			var roiId = idForMappedROI(n);
+			console.log("un-selecting " + roiId );
+			var urnClass = classForMappedUrn(n);
+			var thisROI = document.getElementById(roiId);
+			var thisURN = document.getElementsByClassName(urnClass);
+			console.log(thisROI);
+			thisROI.classList.remove("image_roi_selected");
+			//thisURN.classList.remove("image_roi_selected");
+	}
+}
+
+function idForMappedROI( index ) {
+	return "image_mappedROI_" + index	
+}
+function classForMappedUrn( index ) {
+	return "image_roiGroup_" + index	
+}
+
 /* roiArray consists of objects like this:
 
 roiObject
@@ -42,11 +76,21 @@ roiObject
 			.roiObjectId
 */
 
-// def apply(imageUrnString: String, imageRoiString: String, classNameString: String, roiObjectId: String): js.Dynamic = js.native
-
 function addToJsRoiArray(ius, irs, cns, roiId){
-	tempMap = {imageUrnString: ius, imageRoiString: irs, classNameString: cns, roiObjectId: roiId};
-	roiArray.push(tempMap);
+	var tempMap = {imageUrnString: ius, imageRoiString: irs, classNameString: cns, roiObjectId: roiId};
+	console.log("… before push …");
+	console.log(roiArray);
+	console.log(tempMap);
+	console.log("Testing for " + roiId);
+	var hasIdAlready = roiArray.filter(r => r.roiObjectId == roiId).length;
+	console.log("Has id? " + hasIdAlready);
+	if ( hasIdAlready == 0) {
+		console.log("PUSHING: " + roiId);
+		roiArray.push(tempMap);
+	} else {
+		console.log("NOT PUSHING: " + roiId);
+	}
+	console.log(roiArray);
 }
 
 
@@ -176,6 +220,8 @@ function jsGetsRectFromScala(ius, irs, cns, roiId){
 	addRoiOverlay(tempMap);
 }
 
+
+
 	/**
  * Adds a new ROI overlay using the provided ROI object
  * @param {Object} roiObj   the object that contains the data needed to create
@@ -200,19 +246,19 @@ function addRoiOverlay(roiObj) {
 
 	viewer.addOverlay(elt,osdRect);
 
-	/*
-	$("a#" + elt.id ).on("click",function(){
-		if ( $(this).hasClass("image_roiGroupSelected")){
-			removeAllHighlights();
-		} else {
-			removeAllHighlights();
-			$(this).addClass("image_roiGroupSelected");
-			ict2_drawPreviewFromUrn( $(this).data("urn") );
-			var liId = roiToUrnId(this.id);
-			$("li#"+liId).addClass("image_roiGroupSelected");
-		}
-	});
-	*/
+	var thisId = elt.id;
+	console.log(thisId)
+	var thisElement = document.getElementById(thisId);
+	thisElement.addEventListener("click", function(e) {
+			removeTempROI(true);
+			clearSelectedROIs();
+			var roiId = thisId;
+			//var targetId = roiToUrnId(roiId)
+			//var targetSpan = document.getElementById(targetId)
+			//targetSpan.classList.add("image_roi_selected")
+			e.target.classList.add("image_roi_selected");
+			ICT_HighlightData.highlightData(roiId);
+	}, true);
 
 }
 
