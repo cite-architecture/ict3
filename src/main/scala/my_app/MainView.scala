@@ -229,11 +229,43 @@ object MainView {
 		</div>
 	}
 
+	
+
 	@dom
 	def dataList = {
 		<div id="ict3_data">
 			<div id="ict3_imgPreviewDiv">
-				<img id="ict3_imgPreview" src=""/>
+				<a id="ict3_imgHiRezLink" target="_blank" href={
+							ImageModel.thumbUrn.bind match {
+								case Some(roi) => {
+										ImageModel.useLocal.bind match {
+											case true => {
+												ImageUtils.updateThumbSourceLocal(roi)
+												ImageModel.localThumbDataUrl.bind
+											}
+											case false => {
+												ImageUtils.hirezSourceRemote(roi)
+											}
+										}	
+								}
+								case None => ""
+							}	
+					}>
+					<img id="ict3_imgPreview" src={
+							ImageModel.thumbUrn.bind match {
+								case Some(roi) => {
+										ImageModel.useLocal.bind match {
+											case false => ImageUtils.thumbSourceRemote(roi) 
+											case true => {
+												ImageUtils.updateThumbSourceLocal(roi)
+												ImageModel.localThumbDataUrl.bind
+											}
+										}	
+								}
+								case None => ""
+							}	
+					}/>
+				</a>
 			</div>
 			{ newObjectField.bind }
 			<div id="ict3_dataPairs">
@@ -252,6 +284,12 @@ object MainView {
 										val idxString = s"image_mappedROI_${idx}"
 									}
 								}	
+								onclick={ event: Event => {
+										val roi = ct.urn1.asInstanceOf[Cite2Urn]
+										ImageModel.thumbUrn.value = Some(roi)	
+										//ImageUtils.loadPreview(roi, ImageModel.useLocal.value)	
+									}
+								}
 								class={
 									val groupIndex: Int = MainModel.currentImageROIs.value.indexOf(ct)
 									val groupId: Int = (groupIndex % 25) 
@@ -415,22 +453,24 @@ object MainView {
 				<div class="onoffswitch app_visible">
 				    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox app_visible"
 				    id="citeMain_localImageSwitch" checked={!(ImageModel.useLocal.bind)}
-						onchange={ event: Event => ImageUtils.setPreferredImageSource }
-						/>
-				    <label class="onoffswitch-label" for="citeMain_localImageSwitch">
-				        <span class="image_onoffswitch-inner onoffswitch-inner"></span>
-				        <span class="image_onoffswitch-switch onoffswitch-switch"></span>
-				    </label>
+						onchange={ event: Event => {
+								ImageUtils.setPreferredImageSource 
+							}
+					}/>
+			    <label class="onoffswitch-label" for="citeMain_localImageSwitch">
+			        <span class="image_onoffswitch-inner onoffswitch-inner"></span>
+			        <span class="image_onoffswitch-switch onoffswitch-switch"></span>
+			    </label>
 				</div>
 				<span class="app_visible">
 					<span class={
-							MainModel.useLocal.bind match {
+							ImageModel.useLocal.bind match {
 								case true => "app_visible"	
 								case false => "app_hidden"
 							}
 						}>Using Local Images</span>
 					<span class={
-							MainModel.useLocal.bind match {
+							ImageModel.useLocal.bind match {
 								case false => "app_visible"	
 								case true => "app_hidden"
 							}

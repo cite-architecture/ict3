@@ -8134,9 +8134,6 @@ $.extend( $.Viewer.prototype, $.EventSource.prototype, $.ControlDock.prototype, 
         this._loadQueue.push(myQueueItem);
 
         getTileSourceImplementation( this, options.tileSource, function( tileSource ) {
-            console.log("in osd:");
-            console.log(options.tileSource);
-
             myQueueItem.tileSource = tileSource;
 
             // add everybody at the front of the queue that's ready to go

@@ -7,6 +7,32 @@ function saveCex(filename, cexString) {
 	saveAs(blob, filename);
 }
 
+// Thumbnail Stuff
+
+function jsSetLocalThumb(localPath, imageRoiString, imgElId) {
+					var rL = imageRoiString.split(',')[0];
+					var rT = imageRoiString.split(',')[1];
+					var rW = imageRoiString.split(',')[2];
+					var rH = imageRoiString.split(',')[3];
+	
+	var tempImagePath = getImagePathFromUrn(plainUrn);
+	var path = localPath;
+	var cvs = document.createElement("canvas");
+	cvs.setAttribute("crossOrigin","Anonymous");
+	var ctx = cvs.getContext("2d");
+	var offScreenImg = document.createElement("img");
+	offScreenImg.setAttribute("crossOrigin","Anonymous")
+	offScreenImg.setAttribute("src",path);
+	offScreenImg.onload = function(){
+		cvs.width = (offScreenImg.width * rW);
+		cvs.height = (offScreenImg.height * rH);
+				// draw it once
+		ctx.drawImage(offScreenImg,(0-(offScreenImg.width * rL)),(0-(offScreenImg.height*rT)));
+		var s = cvs.toDataURL("image/png");
+		$("#imgElId").attr("src",s);
+	};
+}
+
 // OpenSeaDragon Stuff
 
 
@@ -46,15 +72,11 @@ function removeTempROI(r) {
 // def apply(imageUrnString: String, imageRoiString: String, classNameString: String, roiObjectId: String): js.Dynamic = js.native
 
 function clearSelectedROIs(){
-	console.log("got here")
 	for (let n = 0; n <= (roiArray.length - 1); n++){
-			console.log(n);
 			var roiId = idForMappedROI(n);
-			console.log("un-selecting " + roiId );
 			var urnClass = classForMappedUrn(n);
 			var thisROI = document.getElementById(roiId);
 			var thisURN = document.getElementsByClassName(urnClass);
-			console.log(thisROI);
 			thisROI.classList.remove("image_roi_selected");
 			//thisURN.classList.remove("image_roi_selected");
 	}
@@ -78,19 +100,10 @@ roiObject
 
 function addToJsRoiArray(ius, irs, cns, roiId){
 	var tempMap = {imageUrnString: ius, imageRoiString: irs, classNameString: cns, roiObjectId: roiId};
-	console.log("… before push …");
-	console.log(roiArray);
-	console.log(tempMap);
-	console.log("Testing for " + roiId);
 	var hasIdAlready = roiArray.filter(r => r.roiObjectId == roiId).length;
-	console.log("Has id? " + hasIdAlready);
 	if ( hasIdAlready == 0) {
-		console.log("PUSHING: " + roiId);
 		roiArray.push(tempMap);
-	} else {
-		console.log("NOT PUSHING: " + roiId);
-	}
-	console.log(roiArray);
+	} 
 }
 
 
@@ -247,7 +260,6 @@ function addRoiOverlay(roiObj) {
 	viewer.addOverlay(elt,osdRect);
 
 	var thisId = elt.id;
-	console.log(thisId)
 	var thisElement = document.getElementById(thisId);
 	thisElement.addEventListener("click", function(e) {
 			removeTempROI(true);

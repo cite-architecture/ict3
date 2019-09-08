@@ -8,6 +8,14 @@
 .entry_valid {
 }
 
+div#ict3_imgPreviewDiv img#ict3_imgPreview {
+	margin-left: 16px;
+	margin-bottom: 10px;
+	border: 1px solid black;
+	max-width: 300px;
+	max-height: 300px;
+}
+
 div#ict3_zoomHelp {
 	margin-left: 0em;
 	font-size: 60%;

@@ -48,10 +48,7 @@ object MainModel {
 	/* Loading an Image */
 	// The currently loaded image
 	val currentImage = Var[Option[Cite2Urn]](None)
-
-	// Local or remote images?
-	val useLocal = Var(false)
-
+	
 	// Does the text input field have a valid URN in it?
 	val validUrnInBox = Var(false)
 	val validDataUrnInBox = Var(false)

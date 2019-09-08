@@ -17,11 +17,28 @@ import js.annotation._
 import scala.scalajs.js.annotation.JSExport
 
 @JSExportTopLevel("CiteMain")
-class Main(remoteUrl:String) {
+class Main(remoteUrl: String,
+			serviceUrl: String,
+			serviceZoomService: String,
+			servicePath: String,
+			serviceSuffix: String,
+			serviceZoomPostfix: String,
+			localpath: String,
+			useLocal: Boolean) {
 
 	@JSExport
 	def main(): Unit = {
-		MainController.main(remoteUrl: String)
+		MainController.main(
+			remoteUrl: String,
+			serviceUrl: String,
+			serviceZoomService: String,
+			servicePath: String,
+			serviceSuffix: String,
+			serviceZoomPostfix: String,
+			localpath: String,
+			useLocal: Boolean
+		)
+
 	}
 
 

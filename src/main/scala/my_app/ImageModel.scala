@@ -34,11 +34,14 @@ val serviceZoomService = Var("DeepZoom=")
 val servicePath = Var("/project/homer/pyramidal/deepzoom/")
 val serviceSuffix = Var(".tif")
 val serviceZoomPostfix = Var(".dzi")
-val localpath = Var("image_archive/")
+val localpath = Var("../../../image_archive/")
 val thumbWidth = Var(250)
 val fullWidth = Var(5000)	
+val thumbUrn = Var[Option[Cite2Urn]](None)
+val localThumbDataUrl = Var("")
 
-val useLocal = Var(false)
+val useLocal = Var(true)
+//var useLocalVar = false
 
 
 

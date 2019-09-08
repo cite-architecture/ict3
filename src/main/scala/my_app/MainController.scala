@@ -31,7 +31,25 @@ object MainController {
 		Initiate app with a URL to an online CEX file	
 	*/
 	@JSExport
-	def main(libUrl: String): Unit = {
+	def main(
+		libUrl: String,
+		serviceUrl: String,
+		serviceZoomService: String,
+		servicePath: String,
+		serviceSuffix: String,
+		serviceZoomPostfix: String,
+		localpath: String,
+		useLocal: Boolean
+	): Unit = {
+
+		ImageModel.serviceUrl.value = serviceUrl
+		ImageModel.serviceZoomService.value = serviceZoomService
+		ImageModel.servicePath.value = servicePath
+		ImageModel.serviceSuffix.value = serviceSuffix
+		ImageModel.serviceZoomPostfix.value = serviceZoomPostfix
+		ImageModel.localpath.value = localpath
+		ImageModel.useLocal.value = useLocal
+
 		MainModel.requestParamUrn = MainController.getRequestUrn
 		if (libUrl.size > 3){
 			loadRemoteLibrary(libUrl)
@@ -99,6 +117,7 @@ object MainController {
 			js.Dynamic.global.document.getElementById("ict3_image_urnInput").value = us
 			validateImageUrn(us)
 			MainModel.clearImageROIs
+			ImageModel.thumbUrn.value = None
 			ImageUtils.clearJsRoiArray(true)
 			retrieveImage(Cite2Urn(us))
 		} else {
@@ -114,7 +133,7 @@ object MainController {
 			val imgUrn: Cite2Urn = u.dropExtensions
 			val roisForImage: CiteRelationSet = CiteRelationSet(MainModel.allROIs.value.toVector.filter(_.urn1 ~~ imgUrn).toSet)
 			// Retrieve Image
-			val path: String = ImageUtils.getTileSources(u)	
+			val path: String = ImageUtils.getTileSources(u, ImageModel.useLocal.value)	
 			ImageUtils.updateImageJS(path, imgUrn.toString)
 			MainModel.updateImageROIs(roisForImage)
 	}

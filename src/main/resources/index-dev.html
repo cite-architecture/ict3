@@ -14,8 +14,15 @@
 
 <script type="text/javascript" src="../ict3-fastopt.js"></script>
 <script>
-	var defaultLibraryUrl = "https://raw.githubusercontent.com/Eumaeus/fuCiteDX/master/ict3/omega1_12_ict.cex"
-	MainController.main(defaultLibraryUrl);
+	var defaultLibraryUrl = "https://raw.githubusercontent.com/Eumaeus/fuCiteDX/master/ict3/omega1_12_ict.cex";
+	var serviceUrl = "http://www.homermultitext.org/iipsrv?";
+	var serviceZoomService = "DeepZoom=";
+	var servicePath = "/project/homer/pyramidal/deepzoom/";
+	var serviceSuffix = ".tif";
+	var serviceZoomPostfix = ".dzi";
+	var localpath = "../../../image_archive/";
+	var useLocal = false;
+	MainController.main(defaultLibraryUrl,serviceUrl,serviceZoomService,servicePath,serviceSuffix,serviceZoomPostfix,localpath,useLocal);
 </script>
 <script type="text/javascript" src="js/ict3.js"></script>
 </html>

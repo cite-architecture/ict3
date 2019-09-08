@@ -22,51 +22,74 @@ import js.annotation._
 
 @JSExportTopLevel("ImageUtils")
 object ImageUtils {
-	/**
-	 * Distributes the drawing of the preview image to the right function
-	 * depending on local or remote setting
-	 * @param  {string} urn the URN we want to draw a preview of
-	 */
-	@JSExportTopLevel("ict2_drawPreviewFromUrn")
-	def ict2_drawPreviewFromUrn(urn: Cite2Urn): Unit = {
+	
+
+
+	/* return a string, the source of a remotely served image thumbnail */
+	def thumbSourceRemote(urn:Cite2Urn):String = {
+		ImageModel.serviceUrl.value + "?OBJ=IIP,1.0&FIF=" + ImageModel.servicePath.value + ImageUtils.getImagePathFromUrn(urn.dropExtensions) + s"${urn.dropExtensions.objectComponent}" + ImageModel.serviceSuffix.value + "&RGN=" + s"""${urn.objectExtensionOption.getOrElse("")}""" + "&wID=250&CVT=JPEG"
+					//"http://www.homermultitext.org/iipsrv?OBJ=IIP,1.0&FIF=/project/homer/pyramidal/deepzoom/hmt/e4img/2017a/e4_547.tif&RGN=0.1272,0.3309,0.2210,0.05771&wID=250&CVT=JPEG"
+	}
+
+	/* return a string, the source of a remotely served image thumbnail */
+	def hirezSourceRemote(urn:Cite2Urn):String = {
+		ImageModel.serviceUrl.value + "?OBJ=IIP,1.0&FIF=" + ImageModel.servicePath.value + ImageUtils.getImagePathFromUrn(urn.dropExtensions) + s"${urn.dropExtensions.objectComponent}" + ImageModel.serviceSuffix.value + "&RGN=" + s"""${urn.objectExtensionOption.getOrElse("")}""" + "&wID=5000&CVT=JPEG"
+	}
+
+	def updateThumbSourceLocal(urn:Cite2Urn):Unit = {
+		val roi:ImageROI = {
 			urn.objectExtensionOption match {
-				case Some (oe) => {
-					var newRoi: ImageROI = ImageROI(oe)
-					if (MainModel.useLocal.value){
-						ImageUtils.getLocalPreview(newRoi)
-					} else {
-						ImageUtils.getRemotePreview(newRoi)
-					}
-				}
-				case None => // do nothing
+				case Some(e) => ImageROI(e)
+				case None => ImageROI("0,0,1,1")
 			}
-	}
-
-	/**
-	 * Gets the local preview using the provided ROI parameter
-	 * @param  {string} newRoi the ROI of the image
-	 */
-	@JSExportTopLevel("getLocalPreview")
-	def getLocalPreview(newRoi: ImageROI): Unit = {
-		// do nothing yet	
-	}
-
-	/**
-	 * Creates the SRC attribute for the image used in the preview window using
-	 * the provided ROI
-	 * @param  {string} roi the ROI of this image
-	 */
-	@JSExportTopLevel("getRemotePreview")
-	def getRemotePreview(roi: ImageROI): Unit = {
-		// do nothing yet
+		}	
+		val rL: Double = roi.left
+		val rT: Double = roi.top
+		val rW: Double = roi.width
+		val rH: Double = roi.height
+		val tempImagePath: String = getImagePathFromUrn(urn)
+		val imgId: String = urn.dropExtensions.objectComponent
+		val path: String = ImageModel.localpath.value + tempImagePath  + imgId + ".jpg";
+		val cvs = document.createElement("canvas").asInstanceOf[HTMLCanvasElement]
+		val ctx = cvs.getContext("2d");
+		val offScreenImg = document.createElement("img").asInstanceOf[HTMLImageElement];
+		cvs.setAttribute("crossOrigin","Anonymous")
+		offScreenImg.setAttribute("crossOrigin","Anonymous")
+	  offScreenImg.setAttribute("src",path);
+	  offScreenImg.onload = { evt:Event =>
+			  cvs.width = (offScreenImg.width * rW).toInt
+				cvs.height = (offScreenImg.height * rH).toInt
+				ctx.drawImage(offScreenImg,(0-(offScreenImg.width * rL).toInt),(0-(offScreenImg.height*rT)).toInt);
+		    val s = cvs.toDataURL("image/png")
+		    ImageModel.localThumbDataUrl.value = s
+		}
 	}
 
 	def setPreferredImageSource = {
 		val imgSourceStr:String = js.Dynamic.global.document.getElementById("citeMain_localImageSwitch").checked.toString
 		imgSourceStr match {
-			case "true" => MainModel.useLocal.value = false
-			case _ => MainModel.useLocal.value = true 
+			case "true" => {
+				ImageModel.useLocal.value = false
+			}
+			case "false" => {
+				ImageModel.useLocal.value = true 
+			}
+			case _ => g.console.log(s"checked value == '${imgSourceStr}'")
 		}	
+
+		MainModel.currentImage.value match {
+			case Some(u) => {
+				val path: String = ImageUtils.getTileSources(u, ImageModel.useLocal.value)	
+				ImageUtils.updateImageJS(path, u.toString)
+				val roisForImage = {
+					CiteRelationSet(MainModel.currentImageROIs.value.toSet)
+				}
+				MainModel.updateImageROIs(roisForImage)
+			}
+		case None => {
+			// do nothing
+		}
+		}
 
 	}
 
@@ -88,16 +111,18 @@ def getImagePathFromUrn(urn: Cite2Urn) = {
  * @param  {string} imgUrn the URN of the Image
  * @return {string}       the URL of the TileSource
  */
-def getTileSources(imgUrn: Cite2Urn): String = {
+def getTileSources(imgUrn: Cite2Urn, useLocal:Boolean): String = {
 	val plainUrn: Cite2Urn = imgUrn.dropExtensions
 	val imgId = plainUrn.objectComponent
 	val imagePath = getImagePathFromUrn(plainUrn);
 
 	val ts: String = 	{
-		if (ImageModel.useLocal. value ){
-			ImageModel.localpath.value + imagePath + imgId + ImageModel.serviceSuffix.value
+		if (useLocal ){
+			val ts: String = ImageModel.localpath.value + imagePath + imgId + ImageModel.serviceZoomPostfix.value
+			ts
 		} else {
-			ImageModel.serviceUrl.value + ImageModel.serviceZoomService.value + ImageModel.servicePath.value + imagePath + imgId + ImageModel.serviceSuffix.value + ImageModel.serviceZoomPostfix.value
+			val ts: String = ImageModel.serviceUrl.value + ImageModel.serviceZoomService.value + ImageModel.servicePath.value + imagePath + imgId + ImageModel.serviceSuffix.value + ImageModel.serviceZoomPostfix.value
+			ts
 		}
 	}
 	ts
@@ -170,9 +195,9 @@ object ICT_HighlightROI {
   }
 }
 
+/* Methods for connecting out to Javascript */
 
 
-	/* Methods for connecting out to Javascript */
 	@JSGlobal("clearJsRoiArray")
 	@js.native
 	object clearJsRoiArray extends js.Any {
@@ -202,6 +227,12 @@ object ICT_HighlightROI {
 	@js.native
 	object jsGetsRectFromScala extends js.Any {
 		def apply(imageUrnString: String, imageRoiString: String, classNameString: String, roiObjectId: String): js.Dynamic = js.native
+	}
+
+	@JSGlobal("jsSetLocalThumb")
+	@js.native
+	object jsSetLocalThumb extends js.Any {
+		def apply(localPath: String, imageRoiString: String, imgElId: String): js.Dynamic = js.native
 	}
 
 	def passNewRectToJS(ct: CiteTriple) = {
