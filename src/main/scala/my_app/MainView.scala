@@ -284,12 +284,7 @@ object MainView {
 										val idxString = s"image_mappedROI_${idx}"
 									}
 								}	
-								onclick={ event: Event => {
-										val roi = ct.urn1.asInstanceOf[Cite2Urn]
-										ImageModel.thumbUrn.value = Some(roi)	
-										//ImageUtils.loadPreview(roi, ImageModel.useLocal.value)	
-									}
-								}
+								
 								class={
 									val groupIndex: Int = MainModel.currentImageROIs.value.indexOf(ct)
 									val groupId: Int = (groupIndex % 25) 
@@ -316,6 +311,11 @@ object MainView {
 								<span class="ict3_data_urn ict3_data_urn2">{ s"${MainModel.truncUrn(ct.urn2)}" }</span>
 
 								} </a>
+								<button onclick={ event: Event => {
+										val roi = ct.urn1.asInstanceOf[Cite2Urn]
+										ImageModel.thumbUrn.value = Some(roi)	
+										//ImageUtils.loadPreview(roi, ImageModel.useLocal.value)	
+									}}>Show Detail</button>
 								<button
 								onclick={ event: Event => MainModel.deleteRelation( ct )}
 								class="ict3_editDeleteButton" id= { s"ict3_delete_${MainModel.tripleToId(ct)}" } >Delete</button>
