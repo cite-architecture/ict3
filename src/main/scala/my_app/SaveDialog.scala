@@ -78,9 +78,10 @@ object SaveDialog {
 		val rsCex: String = {
 			MainModel.saveAs2Column.value match {
 				case true => {
-					crs.relations.toVector.map( r => {
-						s"${r.urn1}\t${r.urn2}"
+					val rels: String = crs.relations.toVector.map( r => {
+						s"${r.urn2}\t${r.urn1}"
 					}).mkString("\n")
+					"passage\timageroi\n" + rels
 				}
 				case false => {
 			    CexWriter.writeCiteRelationBlock(crs, standalone = true)

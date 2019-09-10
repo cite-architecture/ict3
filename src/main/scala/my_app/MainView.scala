@@ -66,7 +66,7 @@ object MainView {
 	<div id="main-wrapper" class="">
 		{ filePicker.bind }
 		<header>
-				Image Citation Tool 3 <span id="app_header_versionInfo">v.0.1.0</span>
+				Image Citation Tool 3 <span id="app_header_versionInfo">v.0.3.0</span>
 		</header>
 
 		<article id="main_Container">

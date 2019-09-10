@@ -1,0 +1,30 @@
+<html>
+<head>
+	<title>Image Citation Tool 3</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<script type="text/javascript" src="js/openseadragon.js"></script>
+	<script type="text/javascript" src="js/openseadragon-guides.js"></script>
+	<script type="text/javascript" src="js/selection.js"></script>
+	<script type="text/javascript" src="js/selectionoverlay.js"></script>
+	<script type="text/javascript" src="js/selectionrect.js"></script>
+	<script type="text/javascript" src="js/FileSaver.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/application.css">
+</head>
+<body/>
+
+<script type="text/javascript" src="ict3-opt.js"></script>
+<script>
+	var defaultLibraryUrl = "https://raw.githubusercontent.com/Eumaeus/fuCiteDX/master/ict3/omega1_12_ict.cex";
+	var serviceUrl = "http://www.homermultitext.org/iipsrv?";
+	var serviceZoomService = "DeepZoom=";
+	var servicePath = "/project/homer/pyramidal/deepzoom/";
+	var serviceSuffix = ".tif";
+	var serviceZoomPostfix = ".dzi";
+	var localpath = "image_archive/";
+	var useLocal = false;
+	MainController.main(defaultLibraryUrl,serviceUrl,serviceZoomService,servicePath,serviceSuffix,serviceZoomPostfix,localpath,useLocal);
+</script>
+<script type="text/javascript" src="js/ict3.js"></script>
+</html>
+
+

@@ -1,6 +1,6 @@
 # ict3
 
-version 0.2.0
+version 0.3.0
 
 An Image Citation tool for working with CITE2 URNs.
 
