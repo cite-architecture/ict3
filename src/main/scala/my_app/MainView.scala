@@ -385,11 +385,23 @@ object MainView {
 					}>
 					<span class="groupingSpan">
 						<label for="fileNameField">Filename for CEX</label>
-						<input id="fileNameField" type="text" size={30} value={ MainModel.defaultExportFilename.bind } />
+						<input id="fileNameField" type="text" size={30} value={ MainModel.defaultExportFilename.bind }
+							onchange={ event: Event => {
+								val thisTarget = event.target.asInstanceOf[org.scalajs.dom.raw.HTMLInputElement]
+								val tempFileName:String = thisTarget.value
+								MainModel.defaultExportFilename.value = tempFileName
+							}}
+						/>
 					</span>
 					<span class="groupingSpan">
 						<label for="userNameField">Editor Name</label>
-						<input id="userNameField" type="text" size={30} value={ MainModel.defaultExportUsername.bind } />
+						<input id="userNameField" type="text" size={30} value={ MainModel.defaultExportUsername.bind } 
+							onchange={ event: Event => {
+								val thisTarget = event.target.asInstanceOf[org.scalajs.dom.raw.HTMLInputElement]
+								val tempUserName:String = thisTarget.value
+								MainModel.defaultExportUsername.value = tempUserName
+							}}
+							/>
 					</span>
 
 					{ saveCancelButtons.bind }
